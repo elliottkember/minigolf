@@ -6,7 +6,6 @@
 #define NUM_LEDS    120  //change this number for the final LED count
 #define BRIGHTNESS  180
 #define FRAMES_PER_SECOND 20
-#define TEMPERATURE_1 Tungsten100W //This is the basic temp without Hole in One
 
 #define LEDdata 3
 #define LEDclock 4
@@ -20,9 +19,8 @@ CRGB leds[NUM_LEDS];
 
 void setup() {
   delay(3000); // sanity delay
-  FastLED.addLeds<APA102, LEDdata, LEDclock, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
+  FastLED.addLeds<APA102, LEDdata, LEDclock, COLOR_ORDER>(leds, NUM_LEDS);
   FastLED.setBrightness(BRIGHTNESS);
-  FastLED.setTemperature(TEMPERATURE_1);
   FastLED.show();
 
   Serial.begin(9600);
@@ -51,21 +49,30 @@ void loop() {
     delay(10);
     digitalWrite(specialFortune, HIGH); //these 3 lines give the special fortune trigger
 
-    // Rainbow fill on the LEDs
-    fill_rainbow(leds, NUM_LEDS, hue, 7);
-    // Moving rainbow chase pattern
-    EVERY_N_MILLISECONDS(10) {
-      hue++;
+    // 22 second loop while we do the audio file?
+    // delay(22000); //this should be the duration of the message
+    uint16_t startTime = millis();
+    uint16_t endTime = startTime + 22000;
+    uint16_t kioskEndTime = kioskEndTime + 3000;
+    while (millis() < endTime) {
+
+      if (millis() < kioskEndTime) {
+        digitalWrite(kioskLight, HIGH);
+      } else {
+        digitalWrite(kioskLight, LOW);
+      }
+
+      // Rainbow fill on the LEDs
+      fill_rainbow(leds, NUM_LEDS, hue, 7);
+      FastLED.show();
+      // Moving rainbow chase pattern
+      EVERY_N_MILLISECONDS(10) {
+        hue++;
+      }
     }
 
-    FastLED.show();
-    delay(22000); //this should be the duration of the message
-    FastLED.setTemperature(TEMPERATURE_1);
-    FastLED.show();
-
     digitalWrite(kioskLight, LOW);
-    delay(3000);
-    digitalWrite(kioskLight, HIGH);
+
     delay(10);
   }
 }
