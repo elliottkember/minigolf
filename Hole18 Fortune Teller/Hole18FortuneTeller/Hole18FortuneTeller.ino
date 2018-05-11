@@ -28,7 +28,6 @@ void setup() {
   pinMode(IR_PIN, INPUT_PULLUP);
   pinMode(specialFortune, OUTPUT);
   pinMode(kioskLight, OUTPUT);
-  //pinMode(buttonPin, INPUT_PULLUP);
 
   delay(1000);
 }
@@ -49,8 +48,7 @@ void loop() {
     delay(10);
     digitalWrite(specialFortune, HIGH); //these 3 lines give the special fortune trigger
 
-    // 22 second loop while we do the audio file?
-    // delay(22000); //this should be the duration of the message
+    // 22 second loop while we do the audio file
     uint16_t startTime = millis();
     uint16_t endTime = startTime + 22000;
     uint16_t kioskEndTime = kioskEndTime + 3000;
