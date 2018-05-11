@@ -40,7 +40,8 @@ CRGB leds[NUM_LEDS_1];
 void setup() {
   delay(3000); // sanity delay
 
-  FastLED.addLeds<APA102, ONdata, ONclock, COLOR_ORDER>(leds, NUM_LEDS_1).setCorrection( TypicalLEDStrip );
+  FastLED.addLeds<APA102, ONdata, ONclock, COLOR_ORDER>(leds, NUM_LEDS_1)
+    .setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(BRIGHTNESS);
 
   Serial.begin(9600);
@@ -70,6 +71,8 @@ void loop() {
   int buttonPress = digitalRead(buttonPin);
 
   Serial.println(sense_motion);
+
+  fill_rainbow(leds, NUM_LEDS_1)
 
   if(buttonPress == LOW) {
     Serial.println("Start Wayfinder Script");
