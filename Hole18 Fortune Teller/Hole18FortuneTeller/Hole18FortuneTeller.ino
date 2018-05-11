@@ -51,7 +51,7 @@ void loop() {
     // 22 second loop while we do the audio file
     uint16_t startTime = millis();
     uint16_t endTime = startTime + 22000;
-    uint16_t kioskEndTime = kioskEndTime + 3000;
+    uint16_t kioskEndTime = startTime + 3000;
     while (millis() < endTime) {
 
       if (millis() < kioskEndTime) {
