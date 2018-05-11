@@ -15,17 +15,14 @@
 #define kioskLight 12
 #define kioskBell 15
 #define IR_PIN 18
-//This was used when we had one teensy. This sketch is now for the Fortune Booth teensy which will not interact with the wayfinder.
-//#define buttonPin 9
 
 CRGB leds[NUM_LEDS];
 
 void setup() {
-  //delay(3000); // sanity delay
+  delay(3000); // sanity delay
   FastLED.addLeds<APA102, LEDdata, LEDclock, COLOR_ORDER>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
   FastLED.setBrightness(BRIGHTNESS);
   FastLED.setTemperature(TEMPERATURE_1);
-  //fill_solid(leds, NUM_LEDS, CRGB(150,120,120));
   FastLED.show();
 
   Serial.begin(9600);
@@ -34,7 +31,7 @@ void setup() {
   pinMode(specialFortune, OUTPUT);
   pinMode(kioskLight, OUTPUT);
   //pinMode(buttonPin, INPUT_PULLUP);
-
+  
   delay(1000);
 }
 
