@@ -31,9 +31,11 @@ void setup() {
   pinMode(specialFortune, OUTPUT);
   pinMode(kioskLight, OUTPUT);
   //pinMode(buttonPin, INPUT_PULLUP);
-  
+
   delay(1000);
 }
+
+int hue = 0;
 
 void loop() {
   int sense_motion = digitalRead(IR_PIN);
@@ -49,7 +51,13 @@ void loop() {
     delay(10);
     digitalWrite(specialFortune, HIGH); //these 3 lines give the special fortune trigger
 
-    fill_rainbow(leds, NUM_LEDS, 0, 7);
+    // Rainbow fill on the LEDs
+    fill_rainbow(leds, NUM_LEDS, hue, 7);
+    // Moving rainbow chase pattern
+    EVERY_N_MILLISECONDS(10) {
+      hue++;
+    }
+
     FastLED.show();
     delay(22000); //this should be the duration of the message
     FastLED.setTemperature(TEMPERATURE_1);
