@@ -1,109 +1,100 @@
+#include <Audio.h>
+#include <Wire.h>
+#include <SD.h>
+#include <SPI.h>
+#include <SerialFlash.h>
+#include <FastLED.h>
+
+AudioPlaySdWav           playSdWav1;
+AudioOutputI2S           i2s1;
+AudioConnection          patchCord1(playSdWav1, 0, i2s1, 0);
+AudioConnection          patchCord2(playSdWav1, 1, i2s1, 1);
+AudioControlSGTL5000     sgtl5000_1;
+
+
 //Here is where you define which actions go with which pins.
-#define special_Fortune 12
-#define hole_In_One 13
-#define stop_Button_Pin 14
-#define PIR_PIN 18
+#define SDCARD_CS_PIN    10
+#define SDCARD_MOSI_PIN  7
+#define SDCARD_SCK_PIN 14
+
+#define COLOR_ORDER BGR  //if your colors look incorrect, change the color order here
+#define NUM_LEDS_1    120  //change this number for the final LED count
+#define NUM_LEDS_2    50
+#define BRIGHTNESS  180
+#define FRAMES_PER_SECOND 20
+#define TEMPERATURE_1 Tungsten100W //This is the basic temp without Hole in One
+
+#define ONdata 3
+#define ONclock 4
+#define RainbowData 5
+#define RainbowClock 6
+
+#define specialFortune 11
+#define holeInOne 12
+#define free_Game_Buzz 15
+#define stop_Button_Pin 16
+#define IR_PIN 18
+#define buttonPin 9
+
+CRGB leds[NUM_LEDS_1];
 
 void setup() {
-    Serial.begin(115200);
-    Serial1.begin(9600);
+    delay(3000); // sanity delay
+    FastLED.addLeds<APA102, ONdata, ONclock, COLOR_ORDER>(leds, NUM_LEDS_1).setCorrection( TypicalLEDStrip );
+    FastLED.setBrightness(BRIGHTNESS);
     
-    pinMode(special_Fortune, OUTPUT);
-    pinMode(hole_In_One, OUTPUT);
-    pinMode(PIR_PIN, INPUT_PULLUP);
+    Serial.begin(9600);
+    AudioMemory(8);
+    sgtl5000_1.enable();
+    sgtl5000_1.volume(0.25);
+    SPI.setMOSI(SDCARD_MOSI_PIN);
+    SPI.setSCK(SDCARD_SCK_PIN);
+    if (!(SD.begin(SDCARD_CS_PIN))) {
+    while (1) {
+      Serial.println("Unable to access the SD card");
+      delay(500);
+    }
+      
+    
+    pinMode(IR_PIN, INPUT_PULLUP);
+    pinMode(specialFortune, OUTPUT);
+    pinMode(holeInOne, OUTPUT);
+    pinMode(buttonPin, INPUT_PULLUP);
 
-    delay(5000);
+    delay(1000);
+}
 }
 
 void loop() {
-
-    // Test play sound 
-//    if(sense_motion()) {
-//        play_sound();
-//        delay(10000);
-//    }
-//    else {
-//        delay(25);
-//    }
-
-    //Test Light
-    
-//    play_sound();
-//    delay(10000);
-
-
+  
 //  *******************
 //  *****MAIN CODE*****
 //  *******************
+int sense_motion = digitalRead(IR_PIN);
+int buttonPress = digitalRead(buttonPin);
 
-    if(sense_motion()) { //sense_motion is a programmed command defined at the bottom of the code.
-        boothLight();
-        giveFortune();
+Serial.println(sense_motion);
+    if(buttonPress == LOW) {
+      Serial.println("Start Wayfinder Script");
+      playSdWav1.play("HOLE_18_WAYFINDER_FORTUNE_TELLER.WAV");
+      delay(10);
     }
+    if(sense_motion == LOW) {
+          Serial.println("Start playing");
+          playSdWav1.play("HOLE_18_BALL_TRIGGERED_FORTUNE_TELLER.WAV");
+          delay(10); // wait for library to parse WAV info
 
-    delay(10);
-
-    // Test motion sensing
-//    if(sense_motion()) {
-//        Serial.println("Motion!");
-//	delay(1000);
-//    }
-//    else {
-//    	Serial.println("No Motion...");
-//    }
-//    delay(10);
-
-    // Test motion activated actuator triggering
-//    if(sense_motion()) {
-//        Serial.println("Motion");
-//    	push(1, 1000);
-//	delay(50);
-//	pull(1, 1000);
-//	delay(5000);
-//    }
-//    else {
-//        Serial.println("No Motion");
-//        delay(100);
-//    }
+          digitalWrite(specialFortune, HIGH);
+          delay(10);
+          digitalWrite(specialFortune, LOW); //these 3 lines give the special fortune trigger
+          
+          for(int i = 0; i < 3; i++) {
+            digitalWrite(holeInOne, HIGH);
+            delay(500);
+            digitalWrite(holeInOne, LOW);
+            delay(500);
+          } //this for loop buzzes the booth light 3 times
+       }
 }
 
-void boothLight() {
-  bool stop_Button = digitalRead(stop_Button_Pin)
-  while(stop_Button == LOW) {
-    digitalWrite(hole_In_One, HIGH);
-    delay(1000);
-    digitalWrite(hole_In_One, LOW);
-    delay(1000);
-  }
-  if(stop_Button == HIGH){
-    digitalWrite(hole_In_One, LOW);
-  }
-}
-
-void giveFortune() {
-    digitalWrite(special_Fortune, HIGH);
-    delay(10);
-    digitalWrite(special_Fortune, LOW);
-}
-
-bool sense_motion() {
-    Serial.println(digitalRead(PIR_PIN));
-    if (digitalRead(PIR_PIN) == HIGH) {
-        Serial.println("motion");
-        return true;
-    }
-    Serial.println(".");
-    return false;
-}
-
-void play_sound() {
-    Serial1.write((byte)0x7e);
-    Serial1.write((byte)0xff);
-    Serial1.write((byte)0x06);
-    Serial1.write((byte)0x22);
-    Serial1.write((byte)0x00);
-    Serial1.write((byte)0x0f);
-    Serial1.write((byte)0x01);
-    Serial1.write((byte)0xef);
-}
 
