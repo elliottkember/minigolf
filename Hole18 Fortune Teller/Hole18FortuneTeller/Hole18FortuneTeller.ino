@@ -1,89 +1,86 @@
-// #include <SPI.h>
+#include <SPI.h>
 #include <SerialFlash.h>
 #include <FastLED.h>
 
 #define COLOR_ORDER BGR  //if your colors look incorrect, change the color order here
 #define NUM_LEDS    300  //change this number for the final LED count
-#define BRIGHTNESS  255
+#define BRIGHTNESS  180
 #define FRAMES_PER_SECOND 20
 
-#define LEDdata 3 // blue
-#define LEDclock 4 // green
+#define LEDdata 3
+#define LEDclock 4
 
-// #define specialFortune 11
-// #define kioskLight 12
-// #define kioskBell 15
-// #define IR_PIN 18
+#define specialFortune 11
+#define kioskLight 12
+#define kioskBell 15
+#define IR_PIN 18
+//#define buttonPin 9 //This was used when we had one teensy. This sketch is now for the Fortune Booth teensy which will not interact with the wayfinder.
 
 CRGB leds[NUM_LEDS];
 
 void setup() {
-  delay(3000); // sanity delay
-  pinMode(LEDdata, OUTPUT);
-  pinMode(LEDclock, OUTPUT);
+    //delay(3000); // sanity delay
+    FastLED.addLeds<SK9822, LEDdata, LEDclock, COLOR_ORDER, DATA_RATE_MHZ(1)>(leds, NUM_LEDS);
+    FastLED.setMaxPowerInVoltsAndMilliamps(5, 3000);
+    FastLED.setBrightness(255);
 
-  FastLED.addLeds<SK9822, LEDdata, LEDclock, COLOR_ORDER, DATA_RATE_MHZ(1)>(leds, NUM_LEDS);
-  FastLED.setMaxPowerInVoltsAndMilliamps(5, 3000);
-  FastLED.setBrightness(255);
-  // FastLED.show();
 
-  Serial.begin(9600);
+    Serial.begin(9600);
 
-  // pinMode(IR_PIN, INPUT_PULLUP);
-  // pinMode(specialFortune, OUTPUT);
-  // pinMode(kioskLight, OUTPUT);
+    pinMode(IR_PIN, INPUT_PULLUP);
+    pinMode(specialFortune, OUTPUT);
+    pinMode(kioskLight, OUTPUT);
 
-  delay(1000);
+    delay(1000);
 }
 
 int hue = 0;
+uint16_t kioskEndTime;
+uint16_t endTime;
+uint16_t startTime;
 
+//  *******************
+//  *****MAIN CODE*****
+//  *******************
 void loop() {
 
-  // fill_solid(leds, NUM_LEDS, CRGB::Red);
-  fill_rainbow(leds, NUM_LEDS, hue, 1);
+int sense_motion = digitalRead(IR_PIN);
 
-  // EVERY_N_MILLISECONDS(1) {
-    hue++;
-  // }
-  FastLED.show();
+digitalWrite(specialFortune, HIGH);
+digitalWrite(kioskLight, HIGH);
+fill_solid( leds, NUM_LEDS, CRGB(255,214,170));
+FastLED.show();
+hue = 0;
+//Serial.println(sense_motion);
 
-  // int sense_motion = digitalRead(IR_PIN);
-  // digitalWrite(specialFortune, HIGH);
-  // digitalWrite(kioskLight, HIGH);
-  //
-  // // Serial.println(sense_motion);
-  //
-  // if(sense_motion == LOW) {
-  //   Serial.println("Motion Sensed");
-  //
-  //   digitalWrite(specialFortune, LOW);
-  //   delay(10);
-  //   digitalWrite(specialFortune, HIGH); //these 3 lines give the special fortune trigger
-  //
-  //   // 22 second loop while we do the audio file
-  //   uint16_t startTime = millis();
-  //   uint16_t endTime = startTime + 22000;
-  //   uint16_t kioskEndTime = startTime + 3000;
-  //   while (millis() < endTime) {
-  //
-  //     if (millis() < kioskEndTime) {
-  //       digitalWrite(kioskLight, HIGH);
-  //     } else {
-  //       digitalWrite(kioskLight, LOW);
-  //     }
-  //
-  //     // Rainbow fill on the LEDs
-  //     fill_rainbow(leds, NUM_LEDS, hue, 7);
-  //     FastLED.show();
-  //     // Moving rainbow chase pattern
-  //     EVERY_N_MILLISECONDS(10) {
-  //       hue++;
-  //     }
-  //   }
-  //
-  //   digitalWrite(kioskLight, LOW);
-  //
-  //   delay(10);
-  // }
+if (sense_motion == LOW) {
+  digitalWrite(specialFortune, LOW);
+  delay(10);
+  digitalWrite(specialFortune, HIGH);
+  digitalWrite(kioskLight, LOW);
+// 22 second loop while we do the audio file
+   startTime = millis();
+   endTime = startTime + 22000;
+   kioskEndTime = startTime + 3000;
+   Serial.println(startTime);
+   Serial.println(endTime);
+   while (millis() < endTime) {
+
+     if (millis() > kioskEndTime) {
+       digitalWrite(kioskLight, HIGH);
+     }
+     // Rainbow fill on the LEDs
+     fill_rainbow(leds, NUM_LEDS, hue, 7);
+     FastLED.show();
+     // Moving rainbow chase pattern
+     EVERY_N_MILLISECONDS(10) {
+       hue++;
+     }
+   }
+   delay(22000);
+ }
+
+   //digitalWrite(kioskLight, HIGH);
+
+   delay(10);
 }
