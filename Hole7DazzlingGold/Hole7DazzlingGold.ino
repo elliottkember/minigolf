@@ -1,42 +1,60 @@
 #include <Audio.h>
 #include <Wire.h>
-#include <SD.h>
 #include <SPI.h>
+#include <SD.h>
 #include <SerialFlash.h>
 
-AudioPlaySdWav           playSdWav1;
-AudioOutputI2S           i2s1;
-AudioConnection          patchCord1(playSdWav1, 0, i2s1, 0);
-AudioConnection          patchCord2(playSdWav1, 1, i2s1, 1);
-AudioControlSGTL5000     sgtl5000_1;
+// GUItool: begin automatically generated code
+AudioPlaySdWav           playSdWav1;     //xy=105,182
+AudioOutputAnalogStereo  dacs1;          //xy=321,188
+AudioConnection          patchCord1(playSdWav1, 0, dacs1, 0);
+AudioConnection          patchCord2(playSdWav1, 1, dacs1, 1);
+// GUItool: end automatically generated code
 
 
 //Here is where you define which actions go with which pins.
-#define SDCARD_CS_PIN    10
-#define SDCARD_MOSI_PIN  7
-#define SDCARD_SCK_PIN 14
+#define SDCARD_CS_PIN    BUILTIN_SDCARD
 
 #define buttonPin 18
-#define triggerPin 16
+#define IR_Pin 19
 
 void setup() {
     Serial.begin(9600);
-    AudioMemory(8);
-    sgtl5000_1.enable();
-    sgtl5000_1.volume(0.75);
-    SPI.setMOSI(SDCARD_MOSI_PIN);
-    SPI.setSCK(SDCARD_SCK_PIN);
+    AudioMemory(20);
     if (!(SD.begin(SDCARD_CS_PIN))) {
-    while (1) {
-      Serial.println("Unable to access the SD card");
-      delay(500);
+      // stop here, but print a message repetitively
+      while (1) {
+        Serial.println("Unable to access the SD card");
+        delay(500);
+      }
     }
-      
+
     pinMode(buttonPin, INPUT_PULLUP);
+
+    int wayfinderButton = digitalRead(buttonPin);
+    int sense_motion = digitalRead(IR_Pin);
 
     delay(1000);
 }
+
+void loop() {
+
+wayfinderButton = digitalRead(buttonPin);
+sense_motion = digitalRead(IR_Pin);
+
+    if(wayfinderButton == LOW) {
+          Serial.println("Start playing");
+          playSdWav1.play("HOLE07.WAV"); //change the sound file here for each hole.
+          delay(10); // wait for library to parse WAV info
+    }
+
+    if(sense_motion == LOW) {
+          Serial.println("Start playing");
+          playSdWav1.play("DAZZLINGGOLD.WAV");
+          delay(10);
+    }
 }
+
 
 void loop() {
 
