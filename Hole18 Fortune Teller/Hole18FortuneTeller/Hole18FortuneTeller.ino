@@ -1,86 +1,40 @@
+#include <Audio.h>
+#include <Wire.h>
 #include <SPI.h>
+#include <SD.h>
 #include <SerialFlash.h>
-#include <FastLED.h>
 
-#define COLOR_ORDER BGR  //if your colors look incorrect, change the color order here
-#define NUM_LEDS    300  //change this number for the final LED count
-#define BRIGHTNESS  180
-#define FRAMES_PER_SECOND 20
+// GUItool: begin automatically generated code
+AudioPlaySdWav           playSdWav1;     //xy=105,182
+AudioOutputAnalogStereo  dacs1;          //xy=321,188
+AudioConnection          patchCord1(playSdWav1, 0, dacs1, 0);
+AudioConnection          patchCord2(playSdWav1, 1, dacs1, 1);
+// GUItool: end automatically generated code
 
-#define LEDdata 3
-#define LEDclock 4
-
-#define specialFortune 11
-#define kioskLight 12
-#define kioskBell 15
-#define IR_PIN 18
-//#define buttonPin 9 //This was used when we had one teensy. This sketch is now for the Fortune Booth teensy which will not interact with the wayfinder.
-
-CRGB leds[NUM_LEDS];
+#define SDCARD_CS_PIN BUILTIN_SDCARD
 
 void setup() {
-    //delay(3000); // sanity delay
-    FastLED.addLeds<SK9822, LEDdata, LEDclock, COLOR_ORDER, DATA_RATE_MHZ(1)>(leds, NUM_LEDS);
-    FastLED.setMaxPowerInVoltsAndMilliamps(5, 3000);
-    FastLED.setBrightness(255);
 
-
-    Serial.begin(9600);
-
-    pinMode(IR_PIN, INPUT_PULLUP);
-    pinMode(specialFortune, OUTPUT);
-    pinMode(kioskLight, OUTPUT);
-
-    delay(1000);
+  Serial.begin(9600);
+  Serial.println("Program Start");
+  AudioMemory(20);
+  if (!(SD.begin(SDCARD_CS_PIN))) {
+    // stop here, but print a message repetitively
+    while (1) {
+      Serial.println("Unable to access the SD card");
+      delay(500);
+    }
+  }
+  delay(1000);
 }
 
-int hue = 0;
-uint16_t kioskEndTime;
-uint16_t endTime;
-uint16_t startTime;
-
-//  *******************
-//  *****MAIN CODE*****
-//  *******************
 void loop() {
-
-int sense_motion = digitalRead(IR_PIN);
-
-digitalWrite(specialFortune, HIGH);
-digitalWrite(kioskLight, HIGH);
-fill_solid( leds, NUM_LEDS, CRGB(255,214,170));
-FastLED.show();
-hue = 0;
-//Serial.println(sense_motion);
-
-if (sense_motion == LOW) {
-  digitalWrite(specialFortune, LOW);
-  delay(10);
-  digitalWrite(specialFortune, HIGH);
-  digitalWrite(kioskLight, LOW);
-// 22 second loop while we do the audio file
-   startTime = millis();
-   endTime = startTime + 22000;
-   kioskEndTime = startTime + 3000;
-   Serial.println(startTime);
-   Serial.println(endTime);
-   while (millis() < endTime) {
-
-     if (millis() > kioskEndTime) {
-       digitalWrite(kioskLight, HIGH);
-     }
-     // Rainbow fill on the LEDs
-     fill_rainbow(leds, NUM_LEDS, hue, 7);
-     FastLED.show();
-     // Moving rainbow chase pattern
-     EVERY_N_MILLISECONDS(10) {
-       hue++;
-     }
-   }
-   delay(22000);
- }
-
-   //digitalWrite(kioskLight, HIGH);
-
-   delay(10);
+ // Serial.println("looping");
+  if (playSdWav1.isPlaying() == false) {
+    Serial.println("Start playing");
+    playSdWav1.play("SDTEST3.WAV");
+    delay(1000); // wait for library to parse WAV info
+    Serial.println(playSdWav1.isPlaying());
+  }
+  // do nothing while playing...
 }
