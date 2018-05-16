@@ -14,8 +14,8 @@ AudioConnection          patchCord2(playSdWav1, 1, dacs1, 1);
 
 #define SDCARD_CS_PIN     BUILTIN_SDCARD
 #define COLOR_ORDER       BGR  //if your colors look incorrect, change the color order here
-#define NUM_LEDS          300  //change this number for the final LED count
-#define BRIGHTNESS        180
+#define NUM_LEDS          133  //change this number for the final LED count
+#define BRIGHTNESS        255
 #define FRAMES_PER_SECOND 20
 
 #define LEDdata  3
@@ -28,7 +28,7 @@ void setup() {
     //delay(3000); // sanity delay
     FastLED.addLeds<SK9822, LEDdata, LEDclock, COLOR_ORDER, DATA_RATE_MHZ(1)>(leds, NUM_LEDS);
     FastLED.setMaxPowerInVoltsAndMilliamps(5, 3000);
-    FastLED.setBrightness(255);
+    FastLED.setBrightness(BRIGHTNESS);
 
     Serial.begin(9600);
     AudioMemory(20);
