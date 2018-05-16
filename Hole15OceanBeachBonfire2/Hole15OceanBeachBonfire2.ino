@@ -55,7 +55,7 @@ void loop() {
   }
      Fire2012();
      FastLED.show();
-     FastLED.delay(44);
+     FastLED.delay(10);
   }
 
 
@@ -133,4 +133,4 @@ void loop() {
       }
       leds[pixelnumber] = color;
     }
-  }
+}
