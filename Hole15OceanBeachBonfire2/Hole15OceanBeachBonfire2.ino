@@ -14,9 +14,7 @@ AudioConnection          patchCord2(playSdWav1, 1, dacs1, 1);
 
 #define SDCARD_CS_PIN     BUILTIN_SDCARD
 #define COLOR_ORDER       BGR  //if your colors look incorrect, change the color order here
-#define NUM_LEDS          133  //change this number for the final LED count
-#define BRIGHTNESS        255
-#define FRAMES_PER_SECOND 20
+#define NUM_LEDS          134  //change this number for the final LED count
 
 #define LEDdata  3
 #define LEDclock 4
@@ -28,7 +26,7 @@ void setup() {
     //delay(3000); // sanity delay
     FastLED.addLeds<SK9822, LEDdata, LEDclock, COLOR_ORDER, DATA_RATE_MHZ(1)>(leds, NUM_LEDS);
     FastLED.setMaxPowerInVoltsAndMilliamps(5, 3000);
-    FastLED.setBrightness(BRIGHTNESS);
+    FastLED.setBrightness(255);
 
     Serial.begin(9600);
     AudioMemory(20);
@@ -51,7 +49,7 @@ void loop() {
 
   if (playSdWav1.isPlaying() == false) {
     playSdWav1.play("SNAP15.WAV");
-    delay(1000); // wait for library to parse WAV info
+    delay(10); // wait for library to parse WAV info
   }
      Fire2012();
      FastLED.show();
