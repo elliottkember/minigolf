@@ -13,10 +13,14 @@ AudioConnection          patchCord2(playSdWav1, 1, dacs1, 1);
 
 #define SDCARD_CS_PIN BUILTIN_SDCARD
 
+#define buttonPin 19
+
 void setup() {
 
   Serial.begin(9600);
-  Serial.println("Program Start");
+
+  pinMode(buttonPin, INPUT_PULLUP);
+
   AudioMemory(20);
   if (!(SD.begin(SDCARD_CS_PIN))) {
     // stop here, but print a message repetitively
@@ -29,12 +33,12 @@ void setup() {
 }
 
 void loop() {
- // Serial.println("looping");
-  if (playSdWav1.isPlaying() == false) {
-    Serial.println("Start playing");
-    playSdWav1.play("SDTEST3.WAV");
+  int wayfinderButton = digitalRead(buttonPin);
+
+  if (wayfinderButton == LOW) {
+    playSdWav1.play("HOLE.WAV"); //change the audio file name to match the hole
     delay(1000); // wait for library to parse WAV info
-    Serial.println(playSdWav1.isPlaying());
   }
   // do nothing while playing...
 }
+
